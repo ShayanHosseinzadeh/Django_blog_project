@@ -1,0 +1,28 @@
+{% extends '_base.html' %}
+{% block page_title %}
+edit game
+{% endblock page_title %}
+
+{% block content %}
+    <div class="row mt-5" dir="ltr">
+        <div class="col-12 d-flex justify-content-center align-items-center ">
+            <div class="card text-center">
+                <div class="card-header">
+                    <h1>edit game</h1>
+                </div>
+                <div class="card-body p-3">
+                    <form method="post">
+                        {% csrf_token %}
+                        <table>
+                        {{ form.as_table }}
+                        </table>
+                <div class="card-footer py-2">
+                        <button class="btn btn-primary" type="submit"> edit</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock content %}

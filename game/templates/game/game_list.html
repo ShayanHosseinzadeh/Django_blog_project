@@ -1,0 +1,45 @@
+
+{% extends 'gamenet.html' %}
+{% block page_title %}
+    Home page
+{% endblock page_title %}
+{% block content %}
+     <div class="container-fluid mt-5">
+        <h1 class="text-center my-4">The games</h1>
+        <div class="row">
+                {% for game in games %}
+            <div class="col-md-4 my-3">
+                <div class="card">
+                    <img class="card-img-top" src="holder.js/100px180/" alt="">
+                    <div class="card-body">
+                        <h4 class="card-title text-center">{{ game.name }}</h4>
+                        <p class="card-text font-weight-bold text-danger">Year of product:
+                            <span class="text-primary">
+                                {{game.year_released}}
+                            </span>
+                        </p>
+                        <p class="card-text font-weight-bold text-danger ">Company:
+                            <span class="text-primary">
+                                {{game.company}}
+                            </span>
+                        </p>
+                        <p class="card-text font-weight-bold text-danger">Description of game:
+                            <span class="text-primary">
+                                {{ game.description }}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a name="" id="" class="btn btn-primary" href="{% url 'Game_detail_view' game.pk %}" role="button">Read more...</a>
+                        <a name="" id="" class="btn btn-secondary" href="{% url 'edit_game' game.pk %}" role="button">Edit</a>
+                        <a name="" id="" class="btn btn-danger" href="{% url 'Delete_game' game.pk %}" role="button">Delete</a>
+
+
+
+                    </div>
+                </div>
+            </div>
+     {% endfor %}
+        </div>
+    </div>
+{% endblock content %}
