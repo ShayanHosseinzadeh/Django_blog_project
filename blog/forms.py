@@ -6,12 +6,14 @@ from .models import Post, Comment
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'text','author','status']
+        fields = ['title', 'text','author','status','tags']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your post title...'}),
             'text': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write your post content here...'}),
             'author': forms.Select(attrs={'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
+            'tags': forms.SelectMultiple(attrs={'class': 'form-control'}),
+
         }
 
 

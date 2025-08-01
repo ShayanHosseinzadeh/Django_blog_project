@@ -15,6 +15,8 @@ class Post(models.Model):
     datetime_modified = models.DateTimeField(auto_now=True)
     status = models.CharField(choices=STATUS_CHOICES,max_length=3)
 
+    tags = models.ManyToManyField('Tag', related_name='posts', blank=True)
+
     def __str__(self):
         return self.title
     def get_absolute_url(self):
@@ -38,3 +40,10 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'Comment by {self.author_name} on {self.post.title}'
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name

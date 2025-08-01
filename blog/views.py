@@ -1,3 +1,4 @@
+from django.db.models.aggregates import Count
 from django.db.models.query_utils import Q
 from django.shortcuts import render, reverse, redirect
 from django.shortcuts import get_object_or_404
@@ -6,17 +7,17 @@ from django.http import HttpResponse
 from django.views import generic
 from django.urls import reverse_lazy
 
-from .models import Post
+from .models import Post, Tag
 from .forms import PostForm, CommentForm
 
 
 class PostListView(generic.ListView):
     template_name = 'blog/post_list.html'
     context_object_name = 'posts_list'
+    paginate_by = 3
 
     def get_queryset(self):
         queryset = Post.objects.filter(status='pub').order_by('-datetime_modified')
-
         query = self.request.GET.get('q')
 
         if query:
@@ -28,10 +29,8 @@ class PostListView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         recent_posts = Post.objects.filter(status='pub').order_by('-datetime_created')[:5]
         context['recent_posts'] = recent_posts
-
         context['query'] = self.request.GET.get('q')
 
         return context
