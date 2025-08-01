@@ -1,61 +1,119 @@
 {% extends '_base.html' %}
+{% load static %}
 
 {% block page_title %}
-    Post Detail
+    {{ post.title }}
 {% endblock page_title %}
 
 {% block content %}
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-9">
-
-                <div class="card shadow my-3 p-5">
-                    <h1>{{ post.title }}</h1>
-                    <p class="small text-muted mt-2">By: {{ post.author}}</p>
-                    <p class="mt-2">{{ post.text}}</p>
-                </div>
-
-                <div class="card shadow my-3 p-5">
-                    <h3>Comments:</h3>
-                    No comments yet! Be the first one.
-                </div>
-
-                <div class="card shadow my-3 p-5">
-                    <h3>Add new comment:</h3>
-                    <form method="POST">
-                        <div class="form-group py-2">
-                            <label class="py-1" for="author_name">Enter your name:</label>
-                            <input type="text" class="form-control" placeholder="e.g. John Doe" name="author_name">
+    <div class="post-page-wrapper">
+        <header class="post-hero-header py-5 text-center">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <h1 class="post-hero-title">{{ post.title }}</h1>
+                        <div class="post-meta mt-4">
+                            <span class="author-info">by <span class="author-name">{{ post.author }}</span></span>
+                            <span class="date-info">{{ post.datetime_created|date:"F d, Y" }}</span>
                         </div>
-                        <div class="form-group py-2">
-                            <label class="py-1" for="email">Your Email:</label>
-                            <input type="email" class="form-control" placeholder="example@gmail.com" name="email">
-                        </div>
-                        <div class="form-group py-2">
-                            <label class="py-1" for="comment_text">Comment text:</label>
-                            <textarea class="form-control" name="text" rows="3"
-                                      placeholder="Enter your comment text here..."></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
-                </div>
-            </div>
-            <div class="col-3">
-
-                <div class="card my-4">
-                    <h5 class="card-header">About</h5>
-                    <div class="card-body">
-                        <p class="card-text">We love python and django. So we created a blog site to share our
-                            thoughts</p>
-                        <a href="#"
-                           class="btn btn-sm btn-danger">
-                            More...
-                        </a>
                     </div>
                 </div>
-
             </div>
-        </div>
-    </div>
+        </header>
 
+        <main class="container my-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <article class="post-content-body">
+                        <p>{{ post.text|linebreaksbr }}</p>
+                    </article>
+
+                    {% if post.author == user %}
+                        <div class="floating-actions d-flex flex-column">
+                            <a href="{% url 'post_update' post.id %}"
+                               class="floating-btn btn btn-outline-secondary mb-2" data-bs-toggle="tooltip"
+                               data-bs-placement="left" title="Edit Post">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'post_delete' post.id %}" class="floating-btn btn btn-outline-danger"
+                               data-bs-toggle="tooltip" data-bs-placement="left" title="Delete Post">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+
+        <!-- Comments and Form Section -->
+        <section class="comments-section-wrapper py-5">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <h3 class="comments-title mb-4">Comments ({{ post.comments.count }})</h3>
+                        <div class="comments-list">
+                            {% if post.comments.all %}
+                                {% for comment in post.comments.all %}
+                                    <div class="comment-item p-3 mb-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="comment-author mb-1">{{ comment.author_name }}</h6>
+                                            <div class="star-rating">
+                                                {% for i in "12345"|make_list %}
+                                                    {% if forloop.counter <= comment.rating %}
+                                                        <i class="bi bi-star-fill text-warning"></i>
+                                                    {% else %}
+                                                        <i class="bi bi-star text-muted"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <p class="small text-muted">{{ comment.datetime_created|date:"F d, Y" }}</p>
+                                        <p class="comment-text">{{ comment.text }}</p>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-muted">No comments yet. Be the first to comment!</p>
+                            {% endif %}
+                        </div>
+
+                        {% if user.is_authenticated %}
+                            <div class="comment-form-container mt-5">
+                                <h4 class="comment-form-title mb-3">Leave a Comment</h4>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="author_name" value="{{ user.username }}">
+                                    <p class="text-muted mb-3">Commenting as: <strong>{{ user.username }}</strong></p>
+                                    <div class="mb-3">
+                                        <label class="form-label">Your Rating</label>
+                                        <div class="star-rating-form">
+                                            <input type="radio" id="star5" name="rating" value="5" required/>
+                                            <label for="star5" title="5 stars"><i class="bi bi-star-fill"></i></label>
+                                            <input type="radio" id="star4" name="rating" value="4"/>
+                                            <label for="star4" title="4 stars"><i class="bi bi-star-fill"></i></label>
+                                            <input type="radio" id="star3" name="rating" value="3"/>
+                                            <label for="star3" title="3 stars"><i class="bi bi-star-fill"></i></label>
+                                            <input type="radio" id="star2" name="rating" value="2"/>
+                                            <label for="star2" title="2 stars"><i class="bi bi-star-fill"></i></label>
+                                            <input type="radio" id="star1" name="rating" value="1"/>
+                                            <label for="star1" title="1 star"><i class="bi bi-star-fill"></i></label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="comment_text" class="form-label">Comment</label>
+                                        <textarea class="form-control" name="text" rows="5" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-2">Submit Comment</button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info mt-5 text-center" role="alert">
+                                You must be logged in to leave a comment. <a href="{% url 'login' %}"
+                                                                             class="alert-link">Log in here</a>.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 {% endblock content %}

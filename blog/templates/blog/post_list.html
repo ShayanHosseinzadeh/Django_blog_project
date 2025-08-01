@@ -1,56 +1,93 @@
 {% extends '_base.html' %}
+{% load static %}
 
 {% block page_title %}
     Post List
 {% endblock page_title %}
 
 {% block content %}
-    <div class="container mt-4">
+    <div class="container my-5">
         <div class="row">
-            <div class="col-9">
-                {% for post in posts_list %}
-                    <div class="card shadow-sm my-3">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ post.title }}</h5>
-                            <h6 class="card-subtitle mb-2 text-muted small py-2">{{ post.datetime_created }}</h6>
-                            <h6 class="card-subtitle  text-muted small py-1">{{ post.author }}</h6>
-                            <p class="card-text py-3">
-                                {{ post.text }}
-                            </p>
-                            <a href="{% url 'post_detail' post.id %}">
-                                <div class="btn btn-sm btn-success">Read More</div>
-
-                            </a>
-                            <a href="{% url 'post_update' post.id %}">
-                                <div class="btn btn-sm btn-danger">Edit</div>
-
-                            </a>
-                            <a href="{% url 'post_delete' post.id %}">
-                                <div class="btn btn-sm btn-secondary">Delete</div>
-
-                            </a>
+            <div class="col-lg-9">
+                {% if posts_list %}
+                    {% with featured_post=posts_list.0 %}
+                        <div class="featured-post mb-5 p-5 text-center">
+                            <h5 class="text-uppercase mb-2 text-muted">Featured Post</h5>
+                            <h1 class="featured-title">{{ featured_post.title }}</h1>
+                            <div class="post-meta mb-4">
+                                <span class="author-info">by <span class="author-name">{{ featured_post.author }}</span></span>
+                                <span class="date-info">{{ featured_post.datetime_created|date:"F d, Y" }}</span>
+                            </div>
+                            <p class="lead">{{ featured_post.text|truncatechars:300 }}</p>
+                            <a href="{% url 'post_detail' featured_post.id %}" class="btn btn-primary btn-lg mt-3">Read
+                                More</a>
                         </div>
-                    </div>
-                {% endfor %}
+                    {% endwith %}
 
+                    <h2 class="mb-4">Recent Posts</h2>
+                    <div class="row post-list">
+                        {% for post in posts_list|slice:"1:" %}
+                            <div class="col-md-6 mb-4">
+                                <article class="post-card p-4">
+                                    <h3 class="post-title">{{ post.title }}</h3>
+                                    <div class="post-meta">
+                                        <span class="author-info">by <span class="author-name">{{ post.author }}</span></span>
+                                        <span class="date-info">{{ post.datetime_created|date:"F d, Y" }}</span>
+                                    </div>
+                                    <div class="post-card-body mt-3">
+                                        <p class="post-excerpt">{{ post.text|truncatechars:150 }}</p>
+                                    </div>
+                                    <div class="post-card-footer mt-3">
+                                        <a href="{% url 'post_detail' post.id %}" class="btn btn-sm btn-primary me-2">Read
+                                            More</a>
+                                        {% if post.author == user %}
+                                            <a href="{% url 'post_update' post.id %}"
+                                               class="btn btn-sm btn-secondary me-2">Edit</a>
+                                            <a href="{% url 'post_delete' post.id %}" class="btn btn-sm btn-danger">Delete</a>
+                                        {% endif %}
+                                    </div>
+                                </article>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <p class="lead text-muted">No posts found yet. Be the first to create one!</p>
+                        <a href="{% url 'post_create' %}" class="btn btn-primary mt-3">Create a New Post</a>
+                    </div>
+                {% endif %}
             </div>
-            <div class="col-3">
 
-                <div class="card my-4">
-                    <h5 class="card-header">About</h5>
-                    <div class="card-body">
-                        <p class="card-text">We love python and django. So we created a blog site to share our
-                            thoughts</p>
-                        <a href="#"
-                           class="btn btn-sm btn-danger">
-                            More...
-                        </a>
+            <div class="col-lg-3">
+                <aside class="sidebar sticky-top">
+                    <div class="sidebar-widget mb-4 p-4">
+                        <h5 class="sidebar-title">Search</h5>
+                        <form action="{% url 'post_list' %}" method="get">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Search posts..." name="q"
+                                       aria-label="Search">
+                                <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
+                            </div>
+                        </form>
                     </div>
-                </div>
 
+
+                    <div class="sidebar-widget mb-4 p-4">
+                        <h5 class="sidebar-title">Recent Posts</h5>
+                        <ul class="list-unstyled">
+                            {% for post in recent_posts %}
+                                <li>
+                                    <a href="{% url 'post_detail' post.id %}" class="sidebar-link">{{ post.title }}</a>
+                                </li>
+                            {% empty %}
+                                <li>
+                                    <p class="text-muted small">No recent posts.</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </aside>
             </div>
         </div>
     </div>
-
-
 {% endblock content %}
